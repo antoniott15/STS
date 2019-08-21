@@ -7,6 +7,7 @@ import (
 	"log"
 
 	speech "cloud.google.com/go/speech/apiv1"
+	"google.golang.org/api/option"
 	speechpb "google.golang.org/genproto/googleapis/cloud/speech/v1"
 )
 
@@ -14,7 +15,7 @@ func SpeechToText(filename string) {
 	ctx := context.Background()
 
 	// Creates a client.
-	client, err := speech.NewClient(ctx)
+	client, err := speech.NewClient(ctx, option.WithCredentialsFile("cred.json"))
 	if err != nil {
 		log.Fatalf("Failed to create client: %v", err)
 	}
@@ -26,6 +27,26 @@ func SpeechToText(filename string) {
 	}
 	fmt.Println(filename, "| data len:", len(data))
 	// Detects speech in the audio file.
+
+	stream, err := client.StreamingRecognize(ctx)
+	if err != nil {
+		panic(err)
+	}
+
+	stream.Send(&speechpb.StreamingRecognizeRequest{
+		// StreamingRequest: &speechpb.StreamingRecognizeRequest_AudioContent{
+			
+		// },
+		StreamingRequest: &speechpb.StreamingRecognizeRequest_StreamingConfig{
+			StreamingConfig: &speechpb.StreamingRecognitionConfig{
+				Config: &speechpb.RecognitionConfig{
+					
+				},
+			},
+		},
+	})
+
+	
 	resp, err := client.Recognize(ctx, &speechpb.RecognizeRequest{
 		Config: &speechpb.RecognitionConfig{
 			Encoding:          speechpb.RecognitionConfig_LINEAR16,
@@ -34,7 +55,8 @@ func SpeechToText(filename string) {
 			LanguageCode:      "en-US",
 		},
 		Audio: &speechpb.RecognitionAudio{
-			AudioSource: &speechpb.RecognitionAudio_Content{Content: data},
+			// AudioSource: &speechpb.RecognitionAudio_Content{Content: data},
+			AudioSource: &speechpb.RecognitionAudio_Content{},
 		},
 	})
 	if err != nil {

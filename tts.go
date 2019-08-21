@@ -7,6 +7,7 @@ import (
 	"log"
 
 	texttospeech "cloud.google.com/go/texttospeech/apiv1"
+	"google.golang.org/api/option"
 	texttospeechpb "google.golang.org/genproto/googleapis/cloud/texttospeech/v1"
 )
 
@@ -14,7 +15,7 @@ func TextToSpeech(text string) {
 
 	ctx := context.Background()
 
-	client, err := texttospeech.NewClient(ctx)
+	client, err := texttospeech.NewClient(ctx, option.WithCredentialsFile("cred.json"))
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -42,7 +43,7 @@ func TextToSpeech(text string) {
 	}
 
 	// The resp's AudioContent is binary.
-	filename := "./Modules/output.wav"
+	filename := "./output.wav"
 	err = ioutil.WriteFile(filename, resp.AudioContent, 0644)
 	if err != nil {
 		log.Fatal(err)
